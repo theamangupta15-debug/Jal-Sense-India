@@ -1704,3 +1704,562 @@ footer.foot {
   flex-direction: column !important;
   align-items: stretch !important;
 }
+
+.login-nav {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 6px;
+  padding: 5px 12px !important;
+  margin-left: 6px;
+}
+
+.login-nav:hover {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.login-nav.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+/* ==========================================================================
+   CSS Themes (Light & Dark with Variable Switching)
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  --bg-page: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+  
+  --header-bg: #0f172a;
+  --header-border: #1e293b;
+  --header-text: #ffffff;
+  --header-muted: #94a3b8;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-badge: #e0f2fe;
+  --accent-btn: #f59e0b;
+  --accent-btn-hover: #d97706;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0b0f19;
+  --bg-surface: #111827;
+  --bg-card: #151d30;
+  --border-color: #243048;
+  
+  --header-bg: #080c14;
+  --header-border: #1e293b;
+  --header-text: #f8fafc;
+  --header-muted: #94a3b8;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-badge: #0c4a6e;
+  --accent-btn: #fbbf24;
+  --accent-btn-hover: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 10px;
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 100;
+}
+.skip:focus { top: 10px; }
+
+/* ==========================================================================
+   Header & Reference Navigation Bar
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  gap: 16px;
+}
+
+/* Brand */
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.brand-badge-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+/* Nav Menu */
+.site-nav ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 4px;
+}
+
+.site-nav a {
+  color: var(--header-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 6px;
+}
+
+.site-nav a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.site-nav a.active {
+  color: #ffffff;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-complaint-btn {
+  color: #f87171 !important;
+}
+.nav-complaint-btn.active {
+  background: rgba(248, 113, 113, 0.2) !important;
+}
+
+/* Right Header Controls (Language, Theme Toggle, Auth Buttons) */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Language Dropdown */
+.lang-select-shell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 5px 8px;
+}
+
+.lang-globe-icon {
+  font-size: 0.85rem;
+}
+
+.lang-select-menu {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lang-select-menu option {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* Light / Dark Mode Button */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Auth Buttons */
+.auth-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-header-login {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.btn-header-login:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-header-get-started {
+  background: var(--accent-btn);
+  color: #000000;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  transition: background 0.15s ease;
+}
+.btn-header-get-started:hover {
+  background: var(--accent-btn-hover);
+}
+
+/* Profile indicator when logged in */
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.user-name-tag {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+.btn-header-logout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Login / Get Started Card Styles
+   ========================================================================== */
+.login-card-shell {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+.auth-tab-row {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.auth-tab-row button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.auth-tab-row button.active {
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.role-chip-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.role-chip-row button {
+  flex: 1;
+  padding: 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.role-chip-row button.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-badge);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.btn-auth-submit {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  margin-top: 6px;
+}
+.btn-auth-submit:hover {
+  background: var(--primary-hover);
+}
+
+/* Footer */
+.site-foot {
+  padding: 32px 20px 48px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 60px;
+  text-align: center;
+}
+
+/* Ensure Header Bar expands and prevents line breaks */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100% !important; /* Prevents cramped layout */
+  padding: 0 16px;
+  gap: 12px;
+  height: 64px;
+}
+
+/* Brand Title stays on a single line */
+.site-brand {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-text {
+  white-space: nowrap !important;
+  font-size: 1.1rem;
+}
+
+/* Nav Menu: prevents wrapping and keeps links compact */
+.site-nav {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  overflow: visible;
+}
+
+.site-nav ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav li {
+  white-space: nowrap !important; /* Force all nav items onto 1 single line */
+}
+
+.site-nav a {
+  white-space: nowrap !important; /* Prevents text from breaking into 2 lines */
+  display: inline-block;
+  padding: 6px 10px !important;
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
+/* Right Controls (Language + Theme + Buttons) */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-header-login,
+.btn-header-get-started {
+  white-space: nowrap !important;
+  padding: 6px 14px;
+  font-size: 0.84rem;
+}
+
+/* ==========================================================================
+   Clean Pill Switch (No Icons)
+   ========================================================================== */
+.theme-pill-switch {
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  outline: none;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.theme-pill-switch .switch-handle {
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.25s ease, background 0.25s ease;
+  transform: translateX(0);
+}
+
+.theme-pill-switch.dark {
+  background: #0284c7;
+  border-color: #38bdf8;
+}
+
+.theme-pill-switch.dark .switch-handle {
+  transform: translateX(20px);
+  background: #ffffff;
+}
+
+/* ==========================================================================
+   Dark Mode Text Color Fixes
+   ========================================================================== */
+[data-theme="dark"] body {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+}
+
+/* Force all headings and titles to white */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] .hero-title,
+[data-theme="dark"] .report-headline,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] strong {
+  color: #ffffff !important;
+}
+
+/* Secondary subtitles and descriptions */
+[data-theme="dark"] p,
+[data-theme="dark"] .hero-subtitle,
+[data-theme="dark"] .report-subline,
+[data-theme="dark"] .section-desc,
+[data-theme="dark"] span:not(.badge-tag):not(.eval-pill):not(.status-badge-lg):not(.pill-dot) {
+  color: #cbd5e1 !important;
+}
+
+/* Dark mode for main interactive cards (Search box, Assessment box, etc.) */
+[data-theme="dark"] .home-hero-wrap,
+[data-theme="dark"] [style*="background: #ffffff"],
+[data-theme="dark"] [style*="background:#ffffff"] {
+  background-color: #151d30 !important;
+  border-color: #243048 !important;
+}
+
+/* Dropdowns, Selects, and Inputs in Dark Mode */
+[data-theme="dark"] select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea {
+  background-color: #0d1322 !important;
+  color: #ffffff !important;
+  border-color: #243048 !important;
+}
+
+/* Top Hero Sub-badge */
+[data-theme="dark"] .civic-pilot-badge,
+[data-theme="dark"] [style*="background: #e0f2fe"],
+[data-theme="dark"] [style*="background:#e0f2fe"] {
+  background-color: #0c4a6e !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}

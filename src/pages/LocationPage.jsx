@@ -1,402 +1,307 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { usePageTitle } from '../App.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
-// Dynamic area-specific hydrological & civic advisories based on Nagpur agro-climatic zones
-const AREA_SPECIFIC_GUIDANCE = {
-  'LOC-MH-NAG-TAL-KAT': [
-    {
-      type: 'warning',
-      badge: 'Aquifer Depletion Alert',
-      title: 'Deep Basalt Extraction & Defluoridation Required',
-      text: 'Intensive citrus (orange) orchard irrigation has lowered the static water table. Avoid consuming unverified deep borewell water directly without testing.',
-      rationale: 'Deep fracture zones in Katol show elevated minerals (>500 mg/L TDS) and localized fluoride. Boiling will concentrate these salts rather than remove them.',
-      source: 'CGWB Nagpur Aquifer Report & GSDA Maharashtra'
-    },
-    {
-      type: 'action',
-      badge: 'Farm & Household Action',
-      title: 'Mandatory Micro-Irrigation & Farm Pond Recharge',
-      text: 'Drip irrigation adoption for citrus groves and artificial recharge through rooftop harvesting are strongly advised prior to the summer depletion cycle.',
-      rationale: 'Replenishing shallow weathered zones prevents transition to over-exploited status.',
-      source: 'Jal Shakti Abhiyan District Plan'
-    }
-  ],
-  'LOC-MH-NAG-TAL-NAR': [
-    {
-      type: 'critical',
-      badge: 'Semi-Critical Aquifer Zone',
-      title: 'Strict Filtration for High Mineral Content',
-      text: 'Narkhed registers the highest static water depths in Nagpur district. Deploy multi-stage RO or ion-exchange filtration for tap & well connections exceeding 500 mg/L TDS.',
-      rationale: 'Nitrate and hardness markers approach upper permissible limits due to agricultural runoff and prolonged basalt contact.',
-      source: 'State Public Health Laboratory & CGWB'
-    },
-    {
-      type: 'info',
-      badge: 'Civic Priority',
-      title: 'Piezometric Well Depth Monitoring',
-      text: 'Borewell drilling below 120 meters is strongly discouraged without a GSDA hydrogeological survey.',
-      rationale: 'Over-drilling penetrates brackish strata with negligible yield recovery.',
-      source: 'Maharashtra Groundwater Authority'
-    }
-  ],
-  'LOC-MH-NAG-TAL-RAM': [
-    {
-      type: 'safe',
-      badge: 'High Recharge Potential',
-      title: 'Surface Reservoir Inflow Protection',
-      text: 'Ramtek enjoys shallow water tables (~4.3 mbgl) aided by the Totladoh / Khindsi catchment. Maintain sanitation buffers within 50m of surface reservoirs.',
-      rationale: 'Shallow alluvial and crystalline aquifers are resilient but susceptible to microbiological seepage during peak monsoon runoffs.',
-      source: 'Nagpur District Irrigation Circle'
-    },
-    {
-      type: 'action',
-      badge: 'Household Advisory',
-      title: 'Chlorination & Filtration for Surface Water',
-      text: 'For open dugwells and municipal surface supply, use standard ceramic filtration or slow sand filtration followed by UV disinfection.',
-      rationale: 'Biological safety is the primary concern in shallow unconfined aquifers with low chemical salinity.',
-      source: 'BIS IS 10500 Guidelines'
-    }
-  ],
-  'LOC-MH-NAG-TAL-MAU': [
-    {
-      type: 'safe',
-      badge: 'Alluvial Basin',
-      title: 'River Basin Aquifer Stability',
-      text: 'The Kanhan river basin provides stable seasonal replenishment. Industrial & agricultural water extraction must comply with designated discharge zones.',
-      rationale: 'Low TDS (340 mg/L) indicates fresh alluvial recharge with low mineral leaching.',
-      source: 'Central Ground Water Board (CGWB)'
-    }
-  ],
-  'LOC-MH-NAG-TAL-HIN': [
-    {
-      type: 'warning',
-      badge: 'Industrial & Urban Spillover',
-      title: 'Industrial Buffer & Chemical Testing',
-      text: 'Due to dense industrial parks (MIDC Hingna) and urban expansion, groundwater samples should undergo annual heavy metal and organic compound testing.',
-      rationale: 'High extraction rates coupled with industrial run-offs pose risks of trace chemical migration.',
-      source: 'Maharashtra Pollution Control Board (MPCB)'
-    },
-    {
-      type: 'action',
-      badge: 'Commercial & Residential',
-      title: 'Rainwater Harvesting Compliance',
-      text: 'Commercial layouts and residential complexes exceeding 300 sq.m must implement dual-pipe rainwater recharge systems.',
-      rationale: 'Arrests localized drawdown caused by residential borewell clusters.',
-      source: 'NMC / NMRDA Development Regulations'
-    }
-  ],
-  'LOC-MH-NAG-CITY': [
-    {
-      type: 'info',
-      badge: 'Treated Supply Network',
-      title: '24x7 Piped Supply & Pipeline Integrity',
-      text: 'Nagpur City relies heavily on treated surface reservoirs (Pench, Gorewada). Periodic point-of-use testing is recommended to detect distribution line ingress.',
-      rationale: 'While treatment plants meet BIS standards, aged secondary distribution networks may cause localized secondary turbidity or residual chlorine loss.',
-      source: 'NMC Water Supply Division & OCW'
-    },
-    {
-      type: 'action',
-      badge: 'Civic Advisory',
-      title: 'Overhead Tank Maintenance Cycle',
-      text: 'Household and apartment overhead tanks should undergo mechanical cleaning and sanitization every 90 days.',
-      rationale: 'Over 60% of verified domestic tap quality issues stem from rooftop storage biofilm.',
-      source: 'Ministry of Jal Shakti Guidelines'
-    }
-  ]
-};
+export default function LoginPage() {
+  usePageTitle('Sign In');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
-// Default guidance fallback for any taluka without custom override
-const DEFAULT_TALUKA_GUIDANCE = [
-  {
-    type: 'action',
-    badge: 'Seasonal Aquifer Health',
-    title: 'Post-Monsoon Recharge Maintenance',
-    text: 'Ensure recharge pits, farm bunds, and check-dams are cleared of silt following post-monsoon water level stabilization.',
-    rationale: 'Maximizes natural percolation before the hot dry pre-monsoon drawdown in February–May.',
-    source: 'Central Ground Water Board (CGWB)'
-  },
-  {
-    type: 'info',
-    badge: 'Drinking Safety',
-    title: 'Standard Laboratory Verification',
-    text: 'Send private tap and borewell samples to accredited public health sub-divisional laboratories once before and once after monsoon.',
-    rationale: 'Sub-surface mineral shifts cannot be assessed by odor, color, or thermal boiling alone.',
-    source: 'MoHFW / BIS Guidelines'
-  }
-];
+  const from = location.state?.from?.pathname || '/explore';
 
-export default function LocationPage() {
-  const { id } = useParams();
-  usePageTitle('Location Report');
+  const [userType, setUserType] = useState('citizen');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) return;
 
-  useEffect(() => {
     setLoading(true);
-    setError(null);
 
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
-    fetch(`${baseUrl}/api/v1/locations/${encodeURIComponent(id)}/intelligence`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((json) => {
-        if (json && json.success && json.data) {
-          setData(json.data);
-        } else {
-          throw new Error('Data payload not found');
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Fetch error:', err);
-        setError('Unable to load verified records for this location.');
-        setLoading(false);
+    setTimeout(() => {
+      login({
+        email,
+        role: userType,
+        displayName: userType === 'citizen' ? 'Verified Citizen' : 'Municipal Officer'
       });
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="report-shell">
-        <div className="report-loading-card">
-          <div className="report-spinner"></div>
-          <p>Compiling verified hydrogeological records and standards intelligence...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="report-shell">
-        <div className="report-error-card">
-          <div className="error-icon">📍</div>
-          <h2>Location Intelligence Unavailable</h2>
-          <p>{error || 'No verified station records found for the requested area identifier.'}</p>
-          <Link to="/explore" className="btn-return">← Back to District Directory</Link>
-        </div>
-      </div>
-    );
-  }
-
-  const { location, groundwaterIntelligence, waterQualityIntelligence } = data;
-  const gwAnalysis = groundwaterIntelligence?.analysis || {};
-  const wqAnalysis = waterQualityIntelligence || {};
-  const locationCode = location?.locationId || location?.id || id;
-  const locationName = location?.name || 'Area Report';
-
-  // Extract tailored guidance: match taluka ID, or fall back to default
-  const areaGuidance = AREA_SPECIFIC_GUIDANCE[locationCode] || DEFAULT_TALUKA_GUIDANCE;
-
-  // Extract water quality parameters
-  const paramsList = wqAnalysis?.parameterEvaluations || wqAnalysis?.samples || [];
+      setLoading(false);
+      navigate(from, { replace: true });
+    }, 600);
+  };
 
   return (
-    <div className="report-shell">
-      {/* Top Breadcrumb */}
-      <nav className="report-nav-bar">
-        <Link to="/explore" className="report-back-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          Nagpur District Directory
-        </Link>
-        <span className="report-sep">/</span>
-        <span className="report-cur">{locationName}</span>
-      </nav>
-
-      {/* Hero Header */}
-      <div className="report-hero">
-        <div className="report-hero-main">
-          <div className="hero-tags">
-            <span className="badge-tag level-pill">{location?.level ? location.level.toUpperCase() : 'TALUKA'}</span>
-            <span className="badge-tag code-pill">CODE: {locationCode}</span>
-          </div>
-          <h1 className="report-headline">{locationName}</h1>
-          <p className="report-subline">
-            Nagpur Administrative Division, Maharashtra • Central Ground Water Board (CGWB) & Public Health Assessment
-          </p>
-        </div>
-
-        <div className="hero-status-box">
-          <div className="status-label-micro">ASSESSMENT COMPLIANCE</div>
-          <div className={`status-badge-lg ${wqAnalysis?.concernClassification?.level === 'limited_concern_identified' ? 'caution' : 'safe'}`}>
-            <span className="badge-dot"></span>
-            {wqAnalysis?.concernClassification?.label || 'Verified Benchmark Active'}
-          </div>
-          <div className="status-freshness-text">
-            {groundwaterIntelligence?.freshness?.label || 'Observed in current monitoring cycle'}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Two-Column Intelligence Grid */}
-      <div className="report-grid-duo">
-        {/* Groundwater Panel */}
-        <section className="intel-card gw-theme">
-          <div className="intel-card-head">
-            <div className="intel-title-wrap">
-              <span className="intel-icon">🌊</span>
-              <div>
-                <h2>Groundwater Depth & Aquifer Status</h2>
-                <span className="intel-subtext">Central Ground Water Board (CGWB) National Hydrograph Network</span>
-              </div>
-            </div>
-            <span className="intel-badge-live">Quarterly Cycle</span>
-          </div>
-
-          <div className="intel-card-content">
-            <div className="metric-highlight-banner">
-              <div className="metric-highlight-item">
-                <span className="micro-title">LATEST RECORDED WATER TABLE</span>
-                <div className="metric-val-big">
-                  {gwAnalysis?.latestObservation ? `${gwAnalysis.latestObservation.value || gwAnalysis.latestObservation.depthMbgl || '6.80'} mbgl` : 'Stabilized Depth'}
-                </div>
-                <span className="metric-sub-note">Meters below ground level</span>
-              </div>
-              <div className="metric-highlight-divider"></div>
-              <div className="metric-highlight-item">
-                <span className="micro-title">OBSERVATION FRESHNESS</span>
-                <div className="metric-val-sm">{groundwaterIntelligence?.freshness?.label || 'Active Cycle'}</div>
-                <span className="metric-sub-note">Verified Hydrograph Well</span>
-              </div>
-            </div>
-
-            <div className="intel-narrative-box">
-              <p>
-                {gwAnalysis?.semanticSummary ||
-                  `The post-monsoon static water level in ${locationName} shows healthy recovery following seasonal precipitation. Regional aquifer depth remains within normal operational parameters.`}
-              </p>
-            </div>
-
-            <div className="intel-meta-footer">
-              <div className="meta-tag">
-                <strong>Monitoring Stations:</strong> {gwAnalysis?.observationCount || 2} Recorded Points
-              </div>
-              <div className="meta-tag">
-                <strong>Standard:</strong> CGWB Guidelines (Pre vs. Post Monsoon Delta)
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Water Quality Panel */}
-        <section className="intel-card wq-theme">
-          <div className="intel-card-head">
-            <div className="intel-title-wrap">
-              <span className="intel-icon">🧪</span>
-              <div>
-                <h2>Drinking Water Quality Evaluation</h2>
-                <span className="intel-subtext">Bureau of Indian Standards (BIS IS 10500:2012 Specifications)</span>
-              </div>
-            </div>
-            <span className="intel-badge-verified">Lab Tested</span>
-          </div>
-
-          <div className="intel-card-content">
-            {paramsList.length > 0 ? (
-              <div className="params-table-shell">
-                <table className="params-table">
-                  <thead>
-                    <tr>
-                      <th>Parameter</th>
-                      <th>Measured</th>
-                      <th>Permissible Limit</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paramsList.map((p, idx) => (
-                      <tr key={idx}>
-                        <td className="param-name-cell">
-                          <strong>{p.parameterName || p.parameterCode?.toUpperCase()}</strong>
-                        </td>
-                        <td className="param-val-cell">
-                          {p.measuredValue !== undefined ? p.measuredValue : p.value} {p.unit}
-                        </td>
-                        <td className="param-limit-cell">
-                          {p.parameterCode === 'tds' ? '500 mg/L' :
-                           p.parameterCode === 'ph' ? '6.5 - 8.5' :
-                           p.parameterCode === 'fluoride' ? '1.0 mg/L' : '45 mg/L'}
-                        </td>
-                        <td>
-                          <span className={`eval-pill ${p.status === 'Caution' ? 'pill-caution' : 'pill-safe'}`}>
-                            {p.status || 'Compliant'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="intel-narrative-box">
-                <p>
-                  All standard lab parameters for {locationName} (pH, TDS, Fluoride, and Nitrate) have been verified against BIS IS 10500:2012 acceptable drinking benchmarks.
-                </p>
-              </div>
-            )}
-
-            <div className="disclaimer-callout">
-              <span className="callout-icon">ℹ️</span>
-              <p>
-                <strong>Public Notice:</strong> Water quality varies across neighborhood distribution pipelines. Test point-of-use taps prior to newborn or immunocompromised consumption.
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Dynamic Evidence-Based Civic Guidance Section */}
-      <section className="civic-guidance-section">
-        <div className="section-header-row">
-          <div>
-            <h2 className="section-title">Evidence-Based Civic Guidance & Action Plans</h2>
-            <p className="section-desc">
-              Context-aware recommendations formulated from local aquifer characteristics and BIS potable criteria for {locationName}.
-            </p>
-          </div>
-          <span className="advisory-count-badge">{areaGuidance.length} Verified Actions</span>
-        </div>
-
-        <div className="guidance-cards-grid">
-          {areaGuidance.map((item, index) => (
-            <div key={index} className={`guidance-card type-${item.type}`}>
-              <div className="guidance-card-top">
-                <span className={`guidance-pill pill-${item.type}`}>{item.badge}</span>
-                <span className="guidance-source-tag">Source: {item.source}</span>
-              </div>
-              <h3 className="guidance-card-title">{item.title}</h3>
-              <p className="guidance-card-text">{item.text}</p>
-              <div className="guidance-rationale-box">
-                <strong>Hydrological Rationale:</strong> {item.rationale}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      
-
-      {/* Assistant Launch Banner */}
-      <section className="assistant-launch-banner">
-        <div className="banner-left">
-          <div className="banner-bot-avatar">🤖</div>
-          <div>
-            <h3>Need specific recommendations for {locationName}?</h3>
-            <p>Query our verified AI water assistant regarding household filtration choices, seasonal well yields, and boiling guidelines.</p>
-          </div>
-        </div>
+    <div style={{ minHeight: 'calc(100vh - 160px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px 16px 64px' }}>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '460px',
+          background: 'var(--bg-card, #ffffff)',
+          border: '1px solid var(--border-color, #e2e8f0)',
+          borderRadius: '20px',
+          padding: '36px 32px',
+          boxShadow: '0 12px 36px -4px rgba(15, 23, 42, 0.08)'
+        }}
+      >
         <Link
-          to={`/assistant?location=${encodeURIComponent(locationCode)}&name=${encodeURIComponent(locationName)}`}
-          className="banner-cta-button"
+          to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.86rem',
+            color: 'var(--text-muted, #64748b)',
+            textDecoration: 'none',
+            fontWeight: '600',
+            marginBottom: '20px'
+          }}
         >
-          Open Assistant for {locationName}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          ← Back to home
         </Link>
-      </section>
+
+        <h1
+          style={{
+            fontSize: '1.9rem',
+            fontWeight: '800',
+            color: 'var(--text-main, #0f172a)',
+            margin: '0 0 6px 0',
+            letterSpacing: '-0.02em'
+          }}
+        >
+          Welcome back
+        </h1>
+        <p
+          style={{
+            fontSize: '0.88rem',
+            color: 'var(--text-muted, #64748b)',
+            lineHeight: '1.5',
+            margin: '0 0 22px 0'
+          }}
+        >
+          Sign in to access verified water records, grievance tracking, and AI assistant.
+        </p>
+
+        {/* Role Switcher Pill */}
+        <div
+          style={{
+            display: 'flex',
+            background: 'var(--bg-surface, #f8fafc)',
+            border: '1px solid var(--border-color, #e2e8f0)',
+            borderRadius: '10px',
+            padding: '4px',
+            marginBottom: '22px'
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setUserType('citizen')}
+            style={{
+              flex: 1,
+              background: userType === 'citizen' ? 'var(--primary, #0284c7)' : 'transparent',
+              color: userType === 'citizen' ? '#ffffff' : 'var(--text-muted, #64748b)',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '7px',
+              fontWeight: '700',
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            Citizen
+          </button>
+          <button
+            type="button"
+            onClick={() => setUserType('official')}
+            style={{
+              flex: 1,
+              background: userType === 'official' ? 'var(--primary, #0284c7)' : 'transparent',
+              color: userType === 'official' ? '#ffffff' : 'var(--text-muted, #64748b)',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '7px',
+              fontWeight: '700',
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            PHED / Municipal Official
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-main, #334155)', marginBottom: '6px' }}>
+              {userType === 'citizen' ? 'Email address or Mobile number' : 'Government Officer Email / ID'}
+            </label>
+            <input
+              type={userType === 'citizen' ? 'text' : 'email'}
+              required
+              placeholder={userType === 'citizen' ? 'you@example.com or 9876543210' : 'officer.phed@nagpur.gov.in'}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '11px 14px',
+                borderRadius: '10px',
+                border: '1px solid var(--border-color, #cbd5e1)',
+                background: 'var(--bg-surface, #ffffff)',
+                color: 'var(--text-main, #0f172a)',
+                fontSize: '0.92rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-main, #334155)', marginBottom: '6px' }}>
+              Password
+            </label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '11px 44px 11px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color, #cbd5e1)',
+                  background: 'var(--bg-surface, #ffffff)',
+                  color: 'var(--text-main, #0f172a)',
+                  fontSize: '0.92rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-muted, #64748b)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '4px'
+                }}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Remember me & Forgot Password */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.84rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted, #64748b)', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ cursor: 'pointer' }}
+              />
+              <span>Remember me</span>
+            </label>
+            <a
+              href="#forgot"
+              onClick={(e) => { e.preventDefault(); alert("Enter your registered email or phone to reset password."); }}
+              style={{ color: 'var(--text-muted, #64748b)', textDecoration: 'none' }}
+            >
+              Forgot password?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              background: 'var(--accent-btn, #f59e0b)',
+              color: '#000000',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '12px 18px',
+              fontWeight: '800',
+              fontSize: '0.94rem',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              marginTop: '4px',
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border-color, #e2e8f0)' }}></div>
+            <span style={{ padding: '0 12px', fontSize: '0.72rem', fontWeight: '700', color: 'var(--text-muted, #94a3b8)', letterSpacing: '0.05em' }}>
+              OR CONTINUE WITH
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border-color, #e2e8f0)' }}></div>
+          </div>
+
+          {/* Google Button */}
+          <button
+            type="button"
+            onClick={() => {
+              login({
+                email: 'google.citizen@nagpur.in',
+                role: userType,
+                displayName: 'Google Verified User'
+              });
+              navigate(from, { replace: true });
+            }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              background: 'var(--bg-surface, #f8fafc)',
+              border: '1px solid var(--border-color, #cbd5e1)',
+              borderRadius: '10px',
+              padding: '11px 16px',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              color: 'var(--text-main, #0f172a)',
+              cursor: 'pointer'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          {/* Switch to Register */}
+          <div style={{ textAlign: 'center', fontSize: '0.86rem', color: 'var(--text-muted, #64748b)', marginTop: '4px' }}>
+            Don't have an account?{' '}
+            <Link to="/register" style={{ color: 'var(--primary, #0284c7)', fontWeight: '700', textDecoration: 'none' }}>
+              Sign up free
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
