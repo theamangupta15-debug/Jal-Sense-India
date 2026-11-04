@@ -5,6 +5,7 @@ import { getWaterQualityByLocation } from '../../controllers/waterQualityControl
 import { getLocationDashboard } from '../../controllers/dashboardController.js';
 import { getHealthStatus, getStandards, getSources, getHealthGuidance, assistantChatPlaceholder } from '../../controllers/systemController.js';
 import { getIngestionHistory, getQuarantinedRecords } from '../../controllers/ingestionController.js';
+import { getLocationIntelligence } from '../../controllers/intelligenceController.js';
 
 const router = Router();
 
@@ -31,7 +32,12 @@ router.get('/locations/:id/water-quality', getWaterQualityByLocation);
 // Assistant (Phase 3 placeholder)
 router.post('/assistant/chat', assistantChatPlaceholder);
 
+// Route mount
+router.get('/locations/:id/intelligence', getLocationIntelligence);
+
 export default router;
+
+
 
 
 
