@@ -1,0 +1,37 @@
+import { Router } from 'express';
+import { getAllLocations, searchLocations, getLocationById } from '../../controllers/locationController.js';
+import { getGroundwaterByLocation } from '../../controllers/groundwaterController.js';
+import { getWaterQualityByLocation } from '../../controllers/waterQualityController.js';
+import { getLocationDashboard } from '../../controllers/dashboardController.js';
+import { getHealthStatus, getStandards, getSources, getHealthGuidance, assistantChatPlaceholder } from '../../controllers/systemController.js';
+import { getIngestionHistory, getQuarantinedRecords } from '../../controllers/ingestionController.js';
+
+const router = Router();
+
+// System
+router.get('/health', getHealthStatus);
+router.get('/standards', getStandards);
+router.get('/sources', getSources);
+router.get('/health-guidance', getHealthGuidance);
+
+// Locations
+router.get('/locations', getAllLocations);
+router.get('/locations/search', searchLocations);
+router.get('/locations/:id', getLocationById);
+router.get('/locations/:id/dashboard', getLocationDashboard);
+
+// Ingestion Audit Endpoints
+router.get('/ingestion/runs', getIngestionHistory);
+router.get('/ingestion/quarantine', getQuarantinedRecords);
+
+// Separated Domains
+router.get('/locations/:id/groundwater', getGroundwaterByLocation);
+router.get('/locations/:id/water-quality', getWaterQualityByLocation);
+
+// Assistant (Phase 3 placeholder)
+router.post('/assistant/chat', assistantChatPlaceholder);
+
+export default router;
+
+
+

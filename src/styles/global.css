@@ -1,0 +1,16 @@
+:root{--navy:#0b2540;--blue:#0a4d8c;--teal:#0b7f86;--cyan:#d8f1f4;--bg:#f6f9fb;--line:#c9d6df;--muted:#4a5d6c;font-family:system-ui,'Noto Sans','Noto Sans Devanagari',sans-serif;color:var(--navy);background:var(--bg)}
+*{box-sizing:border-box}body{margin:0;line-height:1.55}.wrap{max-width:60rem;margin:0 auto;padding:0 1rem}
+a{color:var(--blue)}:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:1rem;background:#fff;padding:.5rem}
+.top{background:var(--navy)}.bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem;padding-block:.6rem}
+.brand{color:#fff;font-weight:700;text-decoration:none;font-size:1.15rem}.top ul{display:flex;flex-wrap:wrap;gap:.25rem;list-style:none;margin:0;padding:0}
+.top nav a{color:#e6f3f6;padding:.55rem .7rem;display:inline-block;text-decoration:none;min-height:44px}.top nav a.active{box-shadow:inset 0 -3px var(--cyan)}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);line-height:1.2}.hero{padding:1.5rem 0}.hero p{max-width:42rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:1rem;margin:1rem 0}.grid2{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+.muted{color:var(--muted);font-size:.92rem}.row{display:flex;gap:.5rem;flex-wrap:wrap}.row input,textarea{flex:1;min-width:0;padding:.7rem;border:1px solid #6b8294;border-radius:4px;font:inherit;width:100%}
+button{min-height:44px;padding:.5rem 1rem;border:0;border-radius:4px;background:var(--blue);color:#fff;font:inherit;cursor:pointer}button.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue);text-align:left}button:disabled{opacity:.6;cursor:not-allowed}
+label{display:block;font-weight:600;margin:.5rem 0 .25rem}.empty{border:1px dashed #6b8294;background:var(--cyan);padding:.75rem 1rem;border-radius:4px;margin:.75rem 0}.empty p{margin:.25rem 0 0}
+.list{padding-left:1.2rem}.list li{margin:.5rem 0}.crumbs{margin:.5rem 0}.chat p{padding:.5rem;border-left:4px solid var(--line)}.chat .system{background:var(--cyan)}.foot{padding-block:2rem;color:var(--muted);font-size:.9rem}
+.wrapr button{flex:1 1 14rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tagline{font-weight:600;color:var(--teal);margin:0 0 .25rem}
