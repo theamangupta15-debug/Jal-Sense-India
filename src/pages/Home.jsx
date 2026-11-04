@@ -3,22 +3,22 @@ import { Link } from 'react-router-dom';
 import { usePageTitle } from '../App.jsx';
 
 const NAGPUR_LOCATIONS = [
-  { id: 'LOC-MH-NAG', name: 'Nagpur District', level: 'district' },
-  { id: 'LOC-MH-NAG-CITY', name: 'Nagpur City', level: 'city' },
-  { id: 'LOC-MH-NAG-TAL-KAT', name: 'Katol', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-NAR', name: 'Narkhed', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-SAO', name: 'Saoner', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-KAL', name: 'Kalmeshwar', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-RAM', name: 'Ramtek', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-PAR', name: 'Parseoni', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-MAU', name: 'Mauda', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-KAM', name: 'Kamptee', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-RUR', name: 'Nagpur Rural', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-URB', name: 'Nagpur Urban', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-HIN', name: 'Hingna', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-UMR', name: 'Umred', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-KUH', name: 'Kuhi', level: 'taluka' },
-  { id: 'LOC-MH-NAG-TAL-BHI', name: 'Bhivapur', level: 'taluka' }
+  { id: 'LOC-MH-NAG', name: 'Nagpur District', level: 'District' },
+  { id: 'LOC-MH-NAG-CITY', name: 'Nagpur City', level: 'City' },
+  { id: 'LOC-MH-NAG-TAL-KAT', name: 'Katol', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-NAR', name: 'Narkhed', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-SAO', name: 'Saoner', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-KAL', name: 'Kalmeshwar', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-RAM', name: 'Ramtek', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-PAR', name: 'Parseoni', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-MAU', name: 'Mauda', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-KAM', name: 'Kamptee', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-RUR', name: 'Nagpur Rural', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-URB', name: 'Nagpur Urban', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-HIN', name: 'Hingna', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-UMR', name: 'Umred', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-KUH', name: 'Kuhi', level: 'Taluka' },
+  { id: 'LOC-MH-NAG-TAL-BHI', name: 'Bhivapur', level: 'Taluka' }
 ];
 
 export default function Home() {
@@ -48,120 +48,202 @@ export default function Home() {
         }
         setLoading(false);
       })
-      .catch((err) => {
-        setFetchError('Backend service unreachable or database not connected.');
+      .catch(() => {
+        setFetchError('Backend service unreachable or database offline.');
         setLoading(false);
       });
   }, [selectedId]);
 
+  const activeLocObj = NAGPUR_LOCATIONS.find((l) => l.id === selectedId) || NAGPUR_LOCATIONS[0];
+
   return (
-    <div className="home-container">
-      <section className="hero">
-        <h1>Understand Your Water. Protect Your Health.</h1>
-        <p>
-          Traceable water quality interpretations, groundwater dynamics, and public-health prevention guidance for Nagpur District[cite: 1].
+    <div className="home-dashboard">
+      {/* Hero Header Section */}
+      <section className="hero-banner">
+        <div className="hero-badge">Civic Water Intelligence • Nagpur Pilot</div>
+        <h1 className="hero-title">Understand Your Water. Protect Your Health.</h1>
+        <p className="hero-subtitle">
+          Evidence-based groundwater monitoring, BIS drinking water benchmarks, and public-health prevention guidance for Nagpur District.
         </p>
       </section>
 
-      {/* Location Selector */}
-      <section className="card location-picker">
-        <label htmlFor="home-loc-select"><strong>Select Administrative Area:</strong></label>
-        <select
-          id="home-loc-select"
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-        >
-          {NAGPUR_LOCATIONS.map((loc) => (
-            <option key={loc.id} value={loc.id}>
-              {loc.name} ({loc.level.toUpperCase()})
-            </option>
-          ))}
-        </select>
-        <div className="picker-links">
-          <Link to={`/location/${selectedId}`}>Open full area report →</Link>
-          <span style={{ margin: '0 8px' }}>•</span>
-          <Link to="/explore">Browse all areas</Link>
+      {/* Interactive Location Picker */}
+      <section className="selector-card">
+        <div className="selector-header">
+          <div className="selector-icon">📍</div>
+          <div>
+            <label htmlFor="area-select" className="selector-label">
+              Select Administrative Area
+            </label>
+            <span className="selector-sub">Filter observations by district, city, or taluka</span>
+          </div>
+        </div>
+
+        <div className="selector-controls">
+          <div className="custom-select-wrap">
+            <select
+              id="area-select"
+              value={selectedId}
+              onChange={(e) => setSelectedId(e.target.value)}
+              className="styled-select"
+            >
+              {NAGPUR_LOCATIONS.map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name} ({loc.level})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="selector-actions">
+            <Link to={`/location/${selectedId}`} className="btn-secondary">
+              Open Full Area Report →
+            </Link>
+            <Link to="/explore" className="btn-ghost">
+              Browse All Areas
+            </Link>
+          </div>
         </div>
       </section>
 
-      {loading && <p className="loading">Loading water intelligence assessment...</p>}
-
-      {fetchError && (
-        <div className="notice-box notice-warning">
-          <strong>Backend Notice:</strong> {fetchError}
-          <br />
-          <small>Ensure the Express backend is running via <code>npm run dev</code> on port 5000.</small>
+      {/* Loading & Error States */}
+      {loading && (
+        <div className="state-card state-loading">
+          <div className="spinner"></div>
+          <span>Loading verified data records for {activeLocObj.name}...</span>
         </div>
       )}
 
+      {fetchError && (
+        <div className="state-card state-error">
+          <span className="error-icon">⚠️</span>
+          <div>
+            <strong>Service Notice:</strong> {fetchError}
+            <div className="error-sub">Ensure the Express server is running on <code>http://localhost:5000</code></div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Intelligence Grid */}
       {!loading && intel && (
-        <div className="intel-stack">
-          {/* Main Assessment Card */}
-          <section className="card">
-            <div className="card-header">
-              <h2>{intel.location?.name} Assessment</h2>
-              <span className={`status-pill status-${intel.waterQualityIntelligence?.concernClassification?.level}`}>
+        <main className="dashboard-content">
+          {/* Main Assessment Header Card */}
+          <section className="intel-card main-assessment">
+            <div className="card-top-bar">
+              <div>
+                <span className="area-type-tag">{intel.location?.level || activeLocObj.level}</span>
+                <h2 className="card-heading">{intel.location?.name || activeLocObj.name} Assessment</h2>
+              </div>
+              <span className={`status-pill status-${intel.waterQualityIntelligence?.concernClassification?.level || 'insufficient_evidence'}`}>
                 {intel.waterQualityIntelligence?.concernClassification?.label || 'Assessment Active'}
               </span>
             </div>
 
-            <p className="summary-text">
+            <p className="assessment-desc">
               {intel.waterQualityIntelligence?.concernClassification?.summary}
             </p>
 
-            {/* Split Information: Groundwater vs Drinking Water */}
-            <div className="split-grid">
-              {/* Groundwater */}
-              <div className="split-col">
-                <h3>Groundwater Status (CGWB Station Data)[cite: 3]</h3>
-                <p>
-                  {intel.groundwaterIntelligence?.analysis?.semanticSummary || 'No station observations directly linked to this sub-unit.'}
+            {/* Split Information Columns */}
+            <div className="metrics-grid">
+              {/* Groundwater Block */}
+              <div className="metric-box groundwater-box">
+                <div className="metric-header">
+                  <span className="metric-icon">🌊</span>
+                  <div>
+                    <h3 className="metric-title">Groundwater Status</h3>
+                    <span className="metric-sub">CGWB Station Monitoring</span>
+                  </div>
+                </div>
+                <p className="metric-body">
+                  {intel.groundwaterIntelligence?.analysis?.semanticSummary ||
+                    'No dedicated observation well station records are mapped directly to this sub-unit.'}
                 </p>
-                {intel.groundwaterIntelligence?.freshness && (
-                  <small>{intel.groundwaterIntelligence.freshness.label}</small>
-                )}
+                <div className="metric-footer">
+                  {intel.groundwaterIntelligence?.freshness?.label ? (
+                    <span className="freshness-badge">🕒 {intel.groundwaterIntelligence.freshness.label}</span>
+                  ) : (
+                    <span className="freshness-badge empty">No station records</span>
+                  )}
+                </div>
               </div>
 
-              {/* Drinking Water Lab */}
-              <div className="split-col">
-                <h3>Drinking Water Tests (BIS IS 10500)[cite: 6]</h3>
-                <p>
+              {/* Drinking Water Quality Block */}
+              <div className="metric-box waterquality-box">
+                <div className="metric-header">
+                  <span className="metric-icon">🧪</span>
+                  <div>
+                    <h3 className="metric-title">Drinking Water Quality</h3>
+                    <span className="metric-sub">BIS IS 10500:2012 Standards</span>
+                  </div>
+                </div>
+                <p className="metric-body">
                   {intel.waterQualityIntelligence?.hasLabData
-                    ? 'Sample analyzed against BIS IS 10500:2012 benchmarks[cite: 6].'
-                    : 'No public machine-readable laboratory water quality test reports published at ward/locality level[cite: 1, 8].'}
+                    ? 'Sample records analyzed against verified Bureau of Indian Standards benchmarks.'
+                    : 'No public machine-readable laboratory water quality test reports are published at ward or locality level.'}
                 </p>
-                <small>
-                  {intel.waterQualityIntelligence?.hasLabData
-                    ? 'Lab Verified'
-                    : 'Absence of data is not proof of purity.'}
-                </small>
+                <div className="metric-footer">
+                  <span className={`freshness-badge ${intel.waterQualityIntelligence?.hasLabData ? 'verified' : 'empty'}`}>
+                    {intel.waterQualityIntelligence?.hasLabData ? '✓ Laboratory Tested' : '⚠️ Absence of data is not proof of purity'}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Recommendations */}
+            {/* Evidence-Based Recommendations */}
             {intel.recommendations && intel.recommendations.length > 0 && (
-              <div className="recommendations-box">
-                <h4>Evidence-Based Recommendations</h4>
-                <ul>
+              <div className="recommendations-container">
+                <h4 className="rec-heading">Evidence-Based Civic Guidance</h4>
+                <div className="rec-list">
                   {intel.recommendations.map((rec, idx) => (
-                    <li key={idx}>
-                      <strong>{rec.text}</strong>
-                      <br />
-                      <small>Rationale: {rec.rationale} • Source: {rec.source}</small>
-                    </li>
+                    <div key={idx} className={`rec-card priority-${rec.priority || 'medium'}`}>
+                      <div className="rec-content">
+                        <strong className="rec-text">{rec.text}</strong>
+                        <div className="rec-meta">
+                          <span><strong>Rationale:</strong> {rec.rationale}</span>
+                          <span className="meta-sep">•</span>
+                          <span><strong>Source:</strong> {rec.source}</span>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
           </section>
 
-          {/* Quick Links */}
-          <div className="quick-links">
-            <Link to="/map" className="btn">View Water Map →</Link>
-            <Link to="/health" className="btn">Disease Prevention Guide →</Link>
-            <Link to="/assistant" className="btn">Ask Water Assistant →</Link>
-          </div>
-        </div>
+          {/* Large Interactive Navigation Action Buttons */}
+          <section className="action-buttons-section">
+            <h3 className="section-label">Explore Specialized Tools & Guidance</h3>
+            <div className="action-buttons-grid">
+              <Link to="/map" className="action-btn-card">
+                <div className="action-btn-icon map-icon">🗺️</div>
+                <div className="action-btn-text">
+                  <strong>Water Availability Map</strong>
+                  <span>View spatial groundwater observations & water stations</span>
+                </div>
+                <div className="action-arrow">→</div>
+              </Link>
+
+              <Link to="/health" className="action-btn-card">
+                <div className="action-btn-icon health-icon">🛡️</div>
+                <div className="action-btn-text">
+                  <strong>Disease Prevention Guide</strong>
+                  <span>NCDC/MoHFW guidelines on boiling vs chemical filtration</span>
+                </div>
+                <div className="action-arrow">→</div>
+              </Link>
+
+              <Link to="/assistant" className="action-btn-card primary-action">
+                <div className="action-btn-icon ai-icon">🤖</div>
+                <div className="action-btn-text">
+                  <strong>Ask Water Assistant</strong>
+                  <span>Natural language Q&A backed by verified records</span>
+                </div>
+                <div className="action-arrow">→</div>
+              </Link>
+            </div>
+          </section>
+        </main>
       )}
     </div>
   );

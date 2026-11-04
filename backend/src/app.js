@@ -1,45 +1,102 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import mongoose from 'mongoose';
+import { rateLimiter } from './middleware/rateLimiter.js';
 import v1Routes from './routes/v1/routes.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { ENV } from './config/env.js';
 
 const app = express();
 
-app.use(helmet());
-app.use(cors({ origin: ENV.CLIENT_ORIGIN }));
-app.use(express.json());
+// Security Headers
+app.use(helmet({
+  contentSecurityPolicy: false // Allows frontend asset hydration in development
+}));
 
-// Add root route handler
-app.get('/', (req, res) => {
+// CORS Configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Blocked by CORS policy'));
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json({ limit: '100kb' })); // Restrict payload size
+app.use(rateLimiter({ maxRequests: 200, windowMs: 60 * 1000 }));
+
+// Basic Health Check (Public Liveness)
+app.get('/api/v1/health', (req, res) => {
   res.json({
-    name: 'Jal Sense India / JalRakshak API',
-    status: 'online',
-    version: '1.0.0',
-    documentation: '/api/v1/health',
-    availableEndpoints: [
-      '/api/v1/health',
-      '/api/v1/locations',
-      '/api/v1/locations/search?q=Katol',
-      '/api/v1/standards',
-      '/api/v1/sources',
-      '/api/v1/health-guidance'
-    ]
+    success: true,
+    data: {
+      status: 'healthy',
+      pilot: 'Nagpur, Maharashtra',
+      timestamp: new Date().toISOString()
+    }
   });
 });
 
-// Mount API v1
+// Operational Readiness Probe (Verifies DB connection readiness)
+app.get('/api/v1/ready', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const isReady = dbState === 1;
+
+  res.status(isReady ? 200 : 503).json({
+    success: isReady,
+    data: {
+      database: isReady ? 'connected' : 'disconnected',
+      server: 'operational',
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// Assistant Configuration & Status Check
+app.get('/api/v1/assistant/status', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      provider: process.env.AI_PROVIDER || 'offline_deterministic',
+      model: process.env.AI_MODEL || 'gemini-1.5-flash',
+      hasApiKey: Boolean(process.env.AI_API_KEY),
+      toolsActive: 10,
+      guardrails: 'enforced'
+    }
+  });
+});
+
+// Mount V1 API
 app.use('/api/v1', v1Routes);
 
-// Fallback for unmatched routes
+// Centralized 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: { code: 'NOT_FOUND', message: `Route ${req.method} ${req.url} does not exist.` }
+    error: {
+      code: 'NOT_FOUND',
+      message: `The requested endpoint '${req.originalUrl}' does not exist.`
+    }
   });
 });
 
-app.use(errorHandler);
+// Error-Handling Middleware (Never leak internal stack traces)
+app.use((err, req, res, next) => {
+  const isDev = process.env.NODE_ENV === 'development';
+  res.status(err.status || 500).json({
+    success: false,
+    error: {
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+      message: err.message || 'An unexpected server error occurred.',
+      ...(isDev && { details: err.stack })
+    }
+  });
+});
 
 export default app;

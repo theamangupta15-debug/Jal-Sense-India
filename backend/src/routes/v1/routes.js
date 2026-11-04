@@ -6,6 +6,7 @@ import { getLocationDashboard } from '../../controllers/dashboardController.js';
 import { getHealthStatus, getStandards, getSources, getHealthGuidance, assistantChatPlaceholder } from '../../controllers/systemController.js';
 import { getIngestionHistory, getQuarantinedRecords } from '../../controllers/ingestionController.js';
 import { getLocationIntelligence } from '../../controllers/intelligenceController.js';
+import { handleAssistantChat } from '../../controllers/assistantController.js';
 
 const router = Router();
 
@@ -29,6 +30,9 @@ router.get('/ingestion/quarantine', getQuarantinedRecords);
 router.get('/locations/:id/groundwater', getGroundwaterByLocation);
 router.get('/locations/:id/water-quality', getWaterQualityByLocation);
 
+// Route replaces the temporary placeholder
+router.post('/assistant/chat', handleAssistantChat);
+
 // Assistant (Phase 3 placeholder)
 router.post('/assistant/chat', assistantChatPlaceholder);
 
@@ -36,6 +40,8 @@ router.post('/assistant/chat', assistantChatPlaceholder);
 router.get('/locations/:id/intelligence', getLocationIntelligence);
 
 export default router;
+
+
 
 
 
