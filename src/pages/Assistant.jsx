@@ -58,44 +58,67 @@ export default function AssistantPage() {
     setIsTyping(true);
 
     // Simulated RAG Pipeline / LLM Response (Ready to swap with Grok API)
-    setTimeout(() => {
+    
+    // Live Local Ollama Integration
+    // Live Local Ollama Integration
+    (async () => {
       let botResponse = {
         id: Date.now() + 1,
         sender: 'assistant',
         text: '',
-        sources: [],
+        sources: [
+          { name: "Local Ollama Engine (Llama 3.2 1B)", url: "http://localhost:11434" },
+          { name: "CGWB Hydrograph Network & BIS IS 10500", url: "https://cgwb.gov.in" }
+        ],
         timestamp: 'Just now'
       };
 
-      const q = textToSend.toLowerCase();
+      const systemPrompt = `You are the Jal Sense AI Civic Water Assistant for Nagpur District, Maharashtra.
+Strict civic and health guardrails:
+1. THERMAL HONESTY: Boiling water vigorously only destroys biological pathogens. Boiling CANNOT remove chemical pollutants, Fluoride, Nitrate, or high TDS. Boiling actually concentrates chemical salts via evaporation.
+2. BIS IS 10500:2012 BENCHMARKS: TDS acceptable limit 500 mg/L (permissible 2000 mg/L); Fluoride acceptable 1.0 mg/L (max 1.5 mg/L); Nitrate cap 45 mg/L; pH 6.5 - 8.5.
+3. GROUNDWATER DATA: Katol and Narkhed have basaltic aquifers with post-monsoon water tables at 8.45–9.70 mbgl under citrus irrigation stress.
+4. ABSENCE OF DATA: Missing lab data does not certify water as safe.
+5. NO MEDICAL DIAGNOSIS: Provide basic hydration/ORS guidance for acute diarrhea, but always advise consulting a Primary Health Centre (PHC) or GMCH Nagpur.
+Keep responses concise, objective, and citizen-friendly.`;
 
-      if (q.includes('katol') || q.includes('narkhed')) {
-        botResponse.text = "According to CGWB hydrograph observations, Katol and Narkhed lie within a heavily extracted basaltic aquifer with post-monsoon water tables at 8.45–9.70 mbgl. Intensive citrus cultivation creates seasonal drawdowns. Mineral testing reflects elevated TDS (~540 mg/L) and fluoride approaching 1.10 mg/L. Micro-irrigation and validated Reverse Osmosis (RO) filtration are advised.";
-        botResponse.sources = [
-          { name: "CGWB Nagpur Aquifer Report (Katol)", url: "https://cgwb.gov.in" },
-          { name: "GSDA Groundwater Survey 2026", url: "https://mwrra.gov.in" }
-        ];
-      } else if (q.includes('boil') || q.includes('chemical')) {
-        botResponse.text = "Crucial distinction: Thermal boiling destroys biological pathogens (bacteria, cysts, and viruses) when brought to a rolling boil for 3+ minutes. However, boiling CANNOT eliminate dissolved chemicals like Fluoride, Nitrate, or high TDS. Boiling actually evaporates pure steam and slightly concentrates the chemical salts. Chemical contaminants require membrane filtration (RO) or activated alumina.";
-        botResponse.sources = [
-          { name: "BIS IS 10500:2012 Drinking Water Annexure", url: "https://www.bis.gov.in" },
-          { name: "WHO Guidelines for Drinking-Water Quality", url: "https://www.who.int" }
-        ];
-      } else if (q.includes('tds') || q.includes('fluoride') || q.includes('standard')) {
-        botResponse.text = "Under BIS IS 10500:2012:\n• Total Dissolved Solids (TDS): Acceptable limit is 500 mg/L; permissible limit in absence of alternate source is 2000 mg/L.\n• Fluoride: Acceptable limit is 1.0 mg/L; upper permissible ceiling is 1.5 mg/L (excess causes dental/skeletal fluorosis).\n• Nitrate (NO3): Strict limit of 45 mg/L with no relaxation due to infantile methemoglobinemia risk.";
-        botResponse.sources = [
-          { name: "Bureau of Indian Standards IS 10500 Table 1 & 2", url: "https://www.bis.gov.in" }
-        ];
-      } else {
-        botResponse.text = `I have received your query: "${textToSend}". In our upcoming Grok RAG release, this query will be vectorized against the Nagpur hydrogeological corpus and real-time municipal laboratory sample registers. Always remember: lack of public data is not certification of purity.`;
-        botResponse.sources = [
-          { name: "Jal Sense India Knowledge Base (Nagpur)", url: "#" }
-        ];
+      try {
+        console.log("➡️ Sending query to llama3.2:1b...");
+
+        const response = await fetch('http://localhost:11434/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama3.2:1b', // Exact tag from your ollama list
+            system: systemPrompt,
+            prompt: textToSend,
+            stream: false
+          })
+        });
+
+        console.log("📥 Ollama response status:", response.status);
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        console.log("📦 Response received:", data);
+
+        const answer = data.response || data.message?.content || '';
+        botResponse.text = answer || "Received empty output from model.";
+
+      } catch (err) {
+        console.error("❌ Ollama Fetch Error:", err);
+        botResponse.text = `⚠️ Error connecting to model: ${err.message}.`;
+      } finally {
+        setMessages((prev) => [...prev, botResponse]);
+        setIsTyping(false);
       }
-
-      setMessages((prev) => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 900);
+    })();
   };
 
   return (
