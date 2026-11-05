@@ -13,7 +13,7 @@ Jal Sense India is an open-source civic technology platform developed to bridge 
 
 <p align="center">
   <img src="docs/screenshots/HomePage.png" width="49%" alt="Home Overview" />
-  <img src="docs/screenshots/ExplorePage.png" width="49%" alt="Explore Talukas" />
+  <img src="docs/screenshots/ExplorePage.png" width="49%" alt="Explore " />
 </p>
 <p align="center">
   <img src="docs/screenshots/MapPage.png" width="49%" alt="Maharashtra Map" />
