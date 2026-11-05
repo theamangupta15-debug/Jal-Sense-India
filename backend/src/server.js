@@ -17,4 +17,18 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 
+const mysql = require('mysql2');
+require('dotenv').config();
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 28872,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: false // Required for Aiven cloud MySQL connection
+  }
+});
+
 bootstrap();
