@@ -61,13 +61,14 @@ export default function AssistantPage() {
     
     // Live Local Ollama Integration
     // Live Local Ollama Integration
+    // Live Gemini Cloud Integration
     (async () => {
       let botResponse = {
         id: Date.now() + 1,
         sender: 'assistant',
         text: '',
         sources: [
-          { name: "Local Ollama Engine (Llama 3.2 1B)", url: "http://localhost:11434" },
+          { name: "Gemini Cloud API (1.5 Flash)", url: "https://aistudio.google.com/" },
           { name: "CGWB Hydrograph Network & BIS IS 10500", url: "https://cgwb.gov.in" }
         ],
         timestamp: 'Just now'
@@ -83,22 +84,30 @@ Strict civic and health guardrails:
 Keep responses concise, objective, and citizen-friendly.`;
 
       try {
-        console.log("➡️ Sending query to llama3.2:1b...");
+        console.log("➡️ Sending query to Gemini 1.5 Flash...");
+        
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
 
-        const response = await fetch('http://localhost:11434/api/generate', {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'llama3.2:1b', // Exact tag from your ollama list
-            system: systemPrompt,
-            prompt: textToSend,
-            stream: false
+            system_instruction: {
+              parts: { text: systemPrompt }
+            },
+            contents: [{
+              parts: [{ text: textToSend }]
+            }],
+            generationConfig: {
+              temperature: 0.2
+            }
           })
         });
 
-        console.log("📥 Ollama response status:", response.status);
+        console.log("📥 Gemini response status:", response.status);
 
         if (!response.ok) {
           const errText = await response.text();
@@ -108,12 +117,12 @@ Keep responses concise, objective, and citizen-friendly.`;
         const data = await response.json();
         console.log("📦 Response received:", data);
 
-        const answer = data.response || data.message?.content || '';
+        const answer = data.candidates[0].content.parts[0].text;
         botResponse.text = answer || "Received empty output from model.";
 
       } catch (err) {
-        console.error("❌ Ollama Fetch Error:", err);
-        botResponse.text = `⚠️ Error connecting to model: ${err.message}.`;
+        console.error("❌ Gemini Fetch Error:", err);
+        botResponse.text = `⚠️ Error connecting to AI model: ${err.message}`;
       } finally {
         setMessages((prev) => [...prev, botResponse]);
         setIsTyping(false);
