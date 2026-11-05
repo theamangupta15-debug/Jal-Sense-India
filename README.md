@@ -73,15 +73,17 @@ jal-sense-india/
 └── vite.config.js
 
 
+.
 ## 📸 Platform Interface Preview
 
 | Home Overview | Explore Talukas |
 | :---: | :---: |
-| ![Jal Sense Home](docs/screenshots/HomePage.png) | ![Explore Talukas](docs/screenshots/ExplorePage.png) |
+| ![Jal Sense Home](docs/screenshots/HomePage.png) | ![Explore Talukas](docs/screenshots/Explorepage.png) |
 
 | Maharashtra Hydrological Map | Local Ollama AI Assistant |
 | :---: | :---: |
 | ![Maharashtra Map](docs/screenshots/MapPage.png) | ![Jal Sense Assistant](docs/screenshots/AssistantPage.png) |
+
 
 Technology Stack
 Frontend Client
