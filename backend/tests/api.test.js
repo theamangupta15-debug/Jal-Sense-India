@@ -25,6 +25,21 @@ afterAll(async () => {
 });
 
 describe('Phase 3 Backend API Tests', () => {
+  it('handles CORS preflight requests for the production frontend', async () => {
+    const res = await request(app)
+      .options('/api/v1/health')
+      .set('Origin', 'https://jal-sense-india.vercel.app')
+      .set('Access-Control-Request-Method', 'PATCH')
+      .set('Access-Control-Request-Headers', 'authorization,content-type');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBe('https://jal-sense-india.vercel.app');
+    expect(res.headers['access-control-allow-credentials']).toBe('true');
+    expect(res.headers['access-control-allow-methods']).toContain('PATCH');
+    expect(res.headers['access-control-allow-headers']).toContain('Authorization');
+    expect(res.headers['access-control-allow-headers']).toContain('Content-Type');
+  });
+
   it('GET /api/v1/health returns HTTP 200 with health metadata', async () => {
     const res = await request(app).get('/api/v1/health');
     expect(res.status).toBe(200);
