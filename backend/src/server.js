@@ -16,10 +16,11 @@ app.use(
 
 async function bootstrap() {
   await connectDB();
-  const port = ENV.PORT || process.env.PORT || 5000;
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`[Jal Sense India Backend] Server running on port ${port} (${ENV.NODE_ENV || 'production'})`);
-  });
+  const port = process.env.PORT || ENV.PORT || 5000;
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server listening on port ${port}`);
+});
 }
 
 bootstrap();
