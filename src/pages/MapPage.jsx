@@ -190,6 +190,7 @@ export default function MapPage() {
 
       {/* Control Bar: Metric Switcher and Division Filter */}
       <div
+        className="map-controls"
         style={{
           background: 'var(--bg-card, #ffffff)',
           border: '1px solid var(--border-color, #e2e8f0)',
@@ -204,7 +205,7 @@ export default function MapPage() {
         }}
       >
         {/* Metric Toggles */}
-        <div style={{ display: 'flex', background: 'var(--bg-surface, #f1f5f9)', padding: '4px', borderRadius: '10px' }}>
+        <div className="map-metric-toggles" style={{ display: 'flex', background: 'var(--bg-surface, #f1f5f9)', padding: '4px', borderRadius: '10px' }}>
           <button
             type="button"
             onClick={() => setActiveMetric('groundwater')}
@@ -240,7 +241,7 @@ export default function MapPage() {
         </div>
 
         {/* Division Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="map-filter" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '0.84rem', fontWeight: '600', color: 'var(--text-muted)' }}>Region / Division:</span>
           <select
             value={filterDivision}
@@ -268,10 +269,11 @@ export default function MapPage() {
       </div>
 
       {/* Main Grid: Interactive Map + Inspection Sidebar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(320px, 1fr)', gap: '24px' }}>
+      <div className="map-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(320px, 1fr)', gap: '24px' }}>
         
         {/* SVG Map Canvas */}
         <div
+          className="map-panel"
           style={{
             background: 'var(--bg-card, #ffffff)',
             border: '1px solid var(--border-color, #e2e8f0)',
@@ -296,6 +298,7 @@ export default function MapPage() {
           </div>
 
           <svg
+            className="hydrology-map"
             viewBox="0 0 540 400"
             style={{ width: '100%', height: 'auto', maxHeight: '480px', overflow: 'visible' }}
           >

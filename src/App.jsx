@@ -1,5 +1,5 @@
-import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Routes, Route, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Home from './pages/Home.jsx';
 import Explore from './pages/Explore.jsx';
 import LocationPage from './pages/LocationPage.jsx';
@@ -27,6 +27,12 @@ function MainHeader() {
   const { theme, toggleTheme, language, setLanguage, t } = useUI();
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const navItems = [
     ['/explore', t('Explore')],
@@ -40,7 +46,7 @@ function MainHeader() {
 
   return (
     <header className="site-header">
-      <div className="header-bar wrap">
+      <div className={`header-bar wrap${isMenuOpen ? ' mobile-menu-open' : ''}`}>
         <Link to="/" className="site-brand">
           <span className="brand-badge-circle">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
@@ -48,7 +54,20 @@ function MainHeader() {
           <span className="brand-text">{t('Jal Sense India')}</span>
         </Link>
 
-        <nav aria-label="Main" className="site-nav">
+        <button
+          type="button"
+          className="mobile-nav-toggle"
+          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="primary-navigation"
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <nav id="primary-navigation" aria-label="Main" className="site-nav">
           <ul>
             <li><NavLink to="/" end>{language === 'mr' ? 'मुख्यपृष्ठ' : language === 'hi' ? 'होम' : 'Home'}</NavLink></li>
             {navItems.map(([path, label]) => (
