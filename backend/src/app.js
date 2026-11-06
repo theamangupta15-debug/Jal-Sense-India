@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoose from 'mongoose';
+import { ENV } from './config/env.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
 import v1Routes from './routes/v1/routes.js';
 
@@ -13,13 +14,9 @@ app.use(helmet({
 }));
 
 // CORS Configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
-
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    if (!origin || ENV.ALLOWED_ORIGINS.includes(origin) || ENV.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
       callback(new Error('Blocked by CORS policy'));
@@ -88,7 +85,7 @@ app.use((req, res) => {
 
 // Error-Handling Middleware (Never leak internal stack traces)
 app.use((err, req, res, next) => {
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = ENV.NODE_ENV === 'development';
   res.status(err.status || 500).json({
     success: false,
     error: {

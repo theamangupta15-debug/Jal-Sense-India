@@ -1,3 +1,5 @@
+import { ENV } from '../config/env.js';
+
 const requestCounts = new Map();
 
 /**
@@ -8,7 +10,7 @@ const requestCounts = new Map();
 export function rateLimiter({ maxRequests = 100, windowMs = 60 * 1000 } = {}) {
   return (req, res, next) => {
     // Exempt tests
-    if (process.env.NODE_ENV === 'test') return next();
+    if (ENV.NODE_ENV === 'test') return next();
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
     const now = Date.now();

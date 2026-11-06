@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePageTitle } from '../App.jsx';
+import { apiUrl } from '../config/api.js';
 
 const NAGPUR_LOCATIONS = [
   { id: 'LOC-MH-NAG', name: 'Nagpur District', level: 'District' },
@@ -33,9 +34,7 @@ export default function Home() {
     setLoading(true);
     setFetchError(null);
 
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
-    fetch(`${baseUrl}/api/v1/locations/${encodeURIComponent(selectedId)}/intelligence`)
+    fetch(apiUrl(`/api/v1/locations/${encodeURIComponent(selectedId)}/intelligence`))
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -119,7 +118,7 @@ export default function Home() {
           <span className="error-icon">⚠️</span>
           <div>
             <strong>Service Notice:</strong> {fetchError}
-            <div className="error-sub">Ensure the Express server is running on <code>http://localhost:5000</code></div>
+            <div className="error-sub">Check the backend service status and database connection.</div>
           </div>
         </div>
       )}

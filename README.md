@@ -55,6 +55,12 @@ jal-sense-india/
 │   └── utils/                  # Trilingual dictionary & helpers
 └── package.json
 
+## API and deployment configuration
+
+The frontend resolves its backend URL from `VITE_API_BASE_URL`, then the legacy `VITE_API_URL`. If neither is set, production uses `https://jal-sense-india.onrender.com` and local development uses `http://localhost:5000`. Loopback URLs configured for a production build are ignored in favor of the Render default.
+
+On Render, configure `NODE_ENV=production`, `MONGODB_URI`, and `ALLOWED_ORIGINS=https://jal-sense-india.vercel.app`. `PORT` is supplied by Render. Production startup requires `MONGODB_URI`; it will not silently connect to a local database.
+
 Getting Started
 1. Clone & Install
 

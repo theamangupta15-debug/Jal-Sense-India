@@ -1,3 +1,5 @@
+import { ENV } from '../../config/env.js';
+
 export class LLMProvider {
   /**
    * Generates completion with tool execution history
@@ -7,7 +9,7 @@ export class LLMProvider {
     const provider = process.env.AI_PROVIDER || 'offline_deterministic';
 
     // In test environment, or if no API key or offline mode is set, use deterministic synthesizer immediately
-    if (process.env.NODE_ENV === 'test' || !apiKey || provider === 'offline_deterministic') {
+    if (ENV.NODE_ENV === 'test' || !apiKey || provider === 'offline_deterministic') {
       return this.deterministicSynthesizer(prompt, toolResults);
     }
 
