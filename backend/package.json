@@ -1,7 +1,7 @@
 {
-  "name": "jalrakshak-backend",
+  "name": "jal-sense-backend",
   "version": "1.0.0",
-  "description": "Backend API and database service for JalRakshak AI / Jal Sense India",
+  "type": "module",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
